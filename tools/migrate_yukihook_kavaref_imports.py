@@ -36,6 +36,20 @@ for path in source_dir.rglob("*.kt"):
         else ".self.hook ",
         content,
     )
+    # Chain interception is also available directly on Java Member.
+    # This mirrors the YukiHook extension's MemberResolver.self.intercept delegate.
+    content = re.sub(
+        r"(?<!\\.self)(?<!\\.self\\?)(?P<nullable>\\?)?\\.intercept\\s*(?=\\{)",
+        lambda m: "?.self?.intercept " if m.group("nullable")
+        else ".self.intercept ",
+        content,
+    )
+    # DexKit returns java.lang.reflect.Method already, not a KavaRef resolver.
+    content = re.sub(
+        r"(\\.getMethodInstance\\(hostClassLoader!!\\))\\.self\\.hook",
+        r"\\1.hook",
+        content,
+    )
     imports = []
     for name, pattern in imports_by_usage.items():
         if not re.search(pattern, content):
