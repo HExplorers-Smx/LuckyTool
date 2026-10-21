@@ -27,10 +27,10 @@ for path in source.rglob("*.kt"):
     # existing PackageParam Member.hook overload. Use that same direct route.
     # Unlike wrapping all of onHook() in context(this), this preserves the
     # normal Kotlin implicit receivers and all original hook callbacks.
-    content = re.sub(r"\\?\\.hookAll\\s*(?=\\{)", lambda m:
+    content = re.sub(r"(?<!\\.self)(?<!\\.self\\?)(?P<nullable>\\?)?\\.hookAll\\s*(?=\\{)", lambda m:
         ("?.map { it.self }?.hookAll " if m.group(0).startswith("?.")
          else ".map { it.self }.hookAll "), content)
-    content = re.sub(r"\\?\\.hook\\s*(?=\\{)", lambda m:
+    content = re.sub(r"(?<!\\.self)(?<!\\.self\\?)(?P<nullable>\\?)?\\.hook\\s*(?=\\{)", lambda m:
         ("?.self?.hook " if m.group(0).startswith("?.")
          else ".self.hook "), content)
     imports = []
