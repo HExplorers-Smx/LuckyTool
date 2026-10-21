@@ -1,11 +1,13 @@
 [versions]
 agp = "9.4.1"
+kotlin = "2.4.20"
 ksp = "2.3.12"
 yuki = "1.5.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
 yukihook-bom = { group = "com.highcapable.yukihookapi", name = "yukihook-bom", version.ref = "yuki" }
