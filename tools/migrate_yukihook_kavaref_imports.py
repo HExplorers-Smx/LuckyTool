@@ -21,12 +21,18 @@ for path in source.rglob("*.kt"):
     content = path.read_text(encoding="utf-8")
     if "YukiBaseHooker" not in content:
         continue
-    # Kotlin 2.4 context parameters must be provided using context(value).
-    # YukiHook 1.5 KavaRef extensions require PackageParam as a context value.
-    old_entry = "override fun onHook() {"
-    new_entry = "override fun onHook(): Unit = context(this) {"
-    if old_entry in content:
-        content = content.replace(old_entry, new_entry)
+    # KavaRef's MemberResolver.hook extension in YukiHook 1.5 requires a
+    # context(PackageParam). The matching legacy implementation simply
+    # delegates to `MemberResolver.self` (java.lang.reflect.Member) and the
+    # existing PackageParam Member.hook overload. Use that same direct route.
+    # Unlike wrapping all of onHook() in context(this), this preserves the
+    # normal Kotlin implicit receivers and all original hook callbacks.
+    content = re.sub(r"\\?\\.hookAll\\s*(?=\\{)", lambda m:
+        ("?.map { it.self }?.hookAll " if m.group(0).startswith("?.")
+         else ".map { it.self }.hookAll "), content)
+    content = re.sub(r"\\?\\.hook\\s*(?=\\{)", lambda m:
+        ("?.self?.hook " if m.group(0).startswith("?.")
+         else ".self.hook "), content)
     imports = []
     for method, pattern in imports_by_usage.items():
         if not re.search(pattern, content):
@@ -38,10 +44,11 @@ for path in source.rglob("*.kt"):
             imports.append(desired)
     if not imports and content == path.read_text(encoding="utf-8"):
         continue
-    m = re.search(r"^package[ \t]+[^\r\n]+\r?\n", content, re.MULTILINE)
-    if not m:
-        raise RuntimeError(f"Missing package statement: {path}")
-    content = content[:m.end()] + "\n".join(sorted(imports)) + "\n" + content[m.end():]
+    if imports:
+        m = re.search(r"^package[ \\t]+[^\\r\\n]+\\r?\\n", content, re.MULTILINE)
+        if not m:
+            raise RuntimeError(f"Missing package statement: {path}")
+        content = content[:m.end()] + "\\n".join(sorted(imports)) + "\\n" + content[m.end():]
     path.write_text(content, encoding="utf-8")
     changed += 1
 print(f"Updated {changed} Kotlin hook files with YukiHook 1.5 KavaRef imports")
