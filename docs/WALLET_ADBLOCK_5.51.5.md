@@ -21,3 +21,15 @@
 - 仅针对 5.51.5 进行静态分析，未经过真机运行验证。
 - 使用通用 QuickCard 渲染的广告可能仍显示。
 - 需要测试启动、首页、银行卡、NFC 交通卡及支付流程，更新钱包版本后需要重新分析。
+
+## 2026-10-21 追加：管钱页“大家还在用”
+
+用户截图中，钱包“管钱”页依然显示“大家还在用”一栏（京东金融、东方证券期货等应用推广）。原有 `HideAdCards` 仅覆盖 operate/adranking/commerce/synad ViewHolder，**漏掉了 activation 这一类应用下载推广**。
+
+重新从 APK 5.51.5（classes2.dex）验证到：
+
+- `com.finshell.advertisement.activation.QcpAppVerticalViewHolder`：extends `com.chad.library.adapter.base.temp.viewholder.QuickViewHolder`，有 `Z(int, jf.a)`、`Y(int)`。
+- `com.finshell.advertisement.activation.QcpAppHorizonViewHolder`：同样继承 `QuickViewHolder`，有 `Z(int, jf.a)`。
+- `QuickViewHolder` 是 `RecyclerView.ViewHolder` 的子类，适用于仅隐藏对应 `itemView` 的现有实现。
+
+在既有“隐藏钱包推广与应用推荐卡片（含管钱页）”开关下，新增两个专用 ViewHolder 的构造以及数据绑定后隐藏操作（View.GONE、height=0、margin=0）。不拦截支付、贷款计算器、银行卡或网络请求。**静态分析只能确认这些专用广告类存在；它们与截图卡片的运行时对应关系仍待真机复测**。若还有广告，需要用运行时视图树/日志进一步定位，不应直接清空整个管钱页。

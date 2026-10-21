@@ -1197,6 +1197,6 @@
     <string name="action_button_ring_cycle_enable">替换响铃循环事件</string>
     <!-- 钱包 (com.finshell.wallet) -->
     <string name="wallet_skip_splash_ads">跳过钱包开屏广告</string>
-    <string name="wallet_hide_ad_cards">隐藏钱包首页广告推广卡片</string>
+    <string name="wallet_hide_ad_cards">隐藏钱包推广与应用推荐卡片（含管钱页）</string>
     <string name="wallet_ads_scope_notice">仅处理广告展示，不修改支付、NFC 与账户逻辑；需要重新启动钱包生效。</string>
 </resources>

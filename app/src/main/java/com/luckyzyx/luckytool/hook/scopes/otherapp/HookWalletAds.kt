@@ -1,6 +1,7 @@
 package com.luckyzyx.luckytool.hook.scopes.otherapp
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.toClassOrNull
@@ -77,14 +78,31 @@ object HookWalletAds : YukiBaseHooker() {
             "com.finshell.advertisement.synad.QcpSynSmallViewHolder"
         )
 
+        // Wallet 5.51.5, finance tab: dedicated app-install recommendation
+        // ViewHolders were absent in the initial ad blocker.
+        private val appRecommendationHolders = arrayOf(
+            "com.finshell.advertisement.activation.QcpAppVerticalViewHolder",
+            "com.finshell.advertisement.activation.QcpAppHorizonViewHolder"
+        )
+
         private fun collapse(holder: Any?) {
             val view = (holder as? RecyclerView.ViewHolder)?.itemView ?: return
             view.visibility = View.GONE
+            view.minimumHeight = 0
             view.layoutParams?.let { params ->
+                var update = false
                 if (params.height != 0) {
                     params.height = 0
-                    view.layoutParams = params
+                    update = true
                 }
+                if (params is ViewGroup.MarginLayoutParams &&
+                    (params.leftMargin != 0 || params.topMargin != 0 ||
+                        params.rightMargin != 0 || params.bottomMargin != 0)
+                ) {
+                    params.setMargins(0, 0, 0, 0)
+                    update = true
+                }
+                if (update) view.layoutParams = params
             }
         }
 
@@ -94,6 +112,34 @@ object HookWalletAds : YukiBaseHooker() {
                     // Each target has exactly one constructor in v5.51.5.
                     firstConstructorOrNull { }?.self?.hook {
                         after { collapse(instanceOrNull) }
+                    }
+                }
+            }
+
+            // The "大家还在用" area is an app-install recommendation,
+            // not the banner/ranking/commerce formats in adHolders above.
+            // Its dedicated holders are backed by RecyclerView and may
+            // reset their visibility during QuickCard data binding.
+            appRecommendationHolders.forEach { className ->
+                className.toClassOrNull()?.resolve()?.apply {
+                    firstConstructorOrNull { }?.self?.hook {
+                        after { collapse(instanceOrNull) }
+                    }
+                    // Both holders have Z(int, jf.a) in Wallet 5.51.5.
+                    firstMethodOrNull {
+                        name = "Z"
+                        parameterCount = 2
+                    }?.self?.hook {
+                        after { collapse(instanceOrNull) }
+                    }
+                    // The vertical holder also has Y(int) for item state.
+                    if (className.endsWith("QcpAppVerticalViewHolder")) {
+                        firstMethodOrNull {
+                            name = "Y"
+                            parameterCount = 1
+                        }?.self?.hook {
+                            after { collapse(instanceOrNull) }
+                        }
                     }
                 }
             }
