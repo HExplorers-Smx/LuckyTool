@@ -1,9 +1,11 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 val keystorePropertiesFile: File = rootProject.file("keystore/keystore.properties")
-val keystoreProperties = Properties()
-keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.isFile) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
+}
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
@@ -20,10 +22,10 @@ extra["minSdkVersion"] = 30
 
 extra["jdkVersion"] = 21
 
-extra["storeFile"] = keystoreProperties["storeFile"]
-extra["storePassword"] = keystoreProperties["storePassword"]
-extra["keyAlias"] = keystoreProperties["keyAlias"]
-extra["keyPassword"] = keystoreProperties["keyPassword"]
+extra["storeFile"] = keystoreProperties.getProperty("storeFile", "")
+extra["storePassword"] = keystoreProperties.getProperty("storePassword", "")
+extra["keyAlias"] = keystoreProperties.getProperty("keyAlias", "")
+extra["keyPassword"] = keystoreProperties.getProperty("keyPassword", "")
 
 buildscript {
     dependencies {
