@@ -28,7 +28,7 @@ minorApiLevel = 2
         targetSdk = rootProject.extra.get("targetSdkVersion") as Int
 
         versionCode = getVersionCode()
-        versionName = "1.3.5-api102-yuki1.5.0-walletfix2"
+        versionName = "1.35"
         ndk.abiFilters.addAll(arrayOf("arm64-v8a"/*, "armeabi-v7a", "x86", "x86_64"*/))
     }
     signingConfigs {
