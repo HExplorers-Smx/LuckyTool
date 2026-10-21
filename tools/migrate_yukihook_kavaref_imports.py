@@ -21,6 +21,12 @@ for path in source.rglob("*.kt"):
     content = path.read_text(encoding="utf-8")
     if "YukiBaseHooker" not in content:
         continue
+    # Kotlin 2.4 context parameters must be provided using context(value).
+    # YukiHook 1.5 KavaRef extensions require PackageParam as a context value.
+    old_entry = "override fun onHook() {"
+    new_entry = "override fun onHook(): Unit = context(this) {"
+    if old_entry in content:
+        content = content.replace(old_entry, new_entry)
     imports = []
     for method, pattern in imports_by_usage.items():
         if not re.search(pattern, content):
@@ -30,7 +36,7 @@ for path in source.rglob("*.kt"):
         desired = f"import com.highcapable.yukihookapi.extension.kavaref.{method}"
         if desired not in content:
             imports.append(desired)
-    if not imports:
+    if not imports and content == path.read_text(encoding="utf-8"):
         continue
     m = re.search(r"^package[ \t]+[^\r\n]+\r?\n", content, re.MULTILINE)
     if not m:
