@@ -12,11 +12,11 @@ assert 'extra["compileSdkVersion"] = 37' in (root / 'build.gradle.kts').read_tex
 for gradle in ('app/build.gradle.kts', 'colorpicker/build.gradle.kts', 'hidden-api-stub/build.gradle.kts'):
     assert 'minorApiLevel = 2' in (root / gradle).read_text(), gradle
 assert versions['libraries']['libxposed-api']['version'] == '102.0.0'
-for name in ('yukihook-bom', 'yukihook-core', 'yukihook-compiler', 'yukihook-runtime-libxposed'):
+for name in ('yukihook-bom', 'yukihook-core', 'yukihook-compiler', 'yukihook-runtime-libxposed', 'yukihook-extension-kavaref'):
     assert name in versions['libraries'], name
 assert 'yukihook-runtime-xposed82' not in versions['libraries']
 app = (root / 'app/build.gradle.kts').read_text()
-for name in ('implementation(libs.yukihook.runtime.libxposed)', 'ksp(libs.yukihook.compiler)', 'compileOnly(libs.libxposed.api)'):
+for name in ('implementation(libs.yukihook.runtime.libxposed)', 'ksp(libs.yukihook.compiler)', 'compileOnly(libs.libxposed.api)', 'implementation(libs.yukihook.extension.kavaref)'):
     assert name in app, name
 hook = (root / 'app/src/main/java/com/luckyzyx/luckytool/hook/MainHook.kt').read_text()
 assert '@YukiHookLibXposedEntry(' in hook

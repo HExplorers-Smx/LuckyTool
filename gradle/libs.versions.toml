@@ -35,6 +35,7 @@ yukihook-bom = { group = "com.highcapable.yukihookapi", name = "yukihook-bom", v
 yukihook-core = { group = "com.highcapable.yukihookapi", name = "yukihook-core" }
 yukihook-compiler = { group = "com.highcapable.yukihookapi", name = "yukihook-compiler" }
 yukihook-runtime-libxposed = { group = "com.highcapable.yukihookapi", name = "yukihook-runtime-libxposed" }
+yukihook-extension-kavaref = { group = "com.highcapable.yukihookapi", name = "yukihook-extension-kavaref" }
 
 kavaref-core = { group = "com.highcapable.kavaref", name = "kavaref-core", version.ref = "kavaref" }
 kavaref-android = { group = "com.highcapable.kavaref", name = "kavaref-android", version.ref = "kavaref" }

@@ -9,3 +9,5 @@
 - This PR is a test migration. Compile result and runtime compatibility with Android / ColorOS still require actual CI and device verification. Do not merge as a proven stable release before testing.
 
 - CI now compiles against Android SDK **37.2** (all three modules), required by YukiHook 1.5.0 and latest AndroidX AAR metadata. This does **not** raise targetSdk (28) or minSdk (30). Use `platforms;android-37.2` rather than the nonexistent `platforms;android-37` SDK-manager package.
+
+- YukiHook 1.5 moved KavaRef hook utilities into `yukihook-extension-kavaref`. Run `python3 tools/migrate_yukihook_kavaref_imports.py` once after checkout; the CI workflow runs it before compilation. This is an intermediate automated source migration; generated imports will be committed to the full source after confirming they compile.
