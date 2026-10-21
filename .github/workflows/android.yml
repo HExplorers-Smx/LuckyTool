@@ -59,11 +59,7 @@ jobs:
             adb shell am start -W -n com.hexplorers.splashguard/.MainActivity
             sleep 8
             adb logcat -d -v time > /tmp/jianjing-smoketest-logcat.txt
-            if grep -A 50 "FATAL EXCEPTION" /tmp/jianjing-smoketest-logcat.txt | grep -q "com.hexplorers.splashguard"; then
-              echo "Fatal crash detected after launching JianJing"
-              grep -A 50 "FATAL EXCEPTION" /tmp/jianjing-smoketest-logcat.txt | tail -n 90
-              exit 1
-            fi
+            python3 -c 'from pathlib import Path; s=Path("/tmp/jianjing-smoketest-logcat.txt").read_text(errors="replace"); failures=[b[:4000] for b in s.split("FATAL EXCEPTION")[1:] if "com.hexplorers.splashguard" in b[:4000]]; print("\\n".join(failures[:2])); assert not failures, "JianJing startup fatal exception detected"'
             adb shell pidof com.hexplorers.splashguard
             adb shell screencap -p /sdcard/jianjing-screenshot.png
             adb pull /sdcard/jianjing-screenshot.png jianjing-screenshot.png
@@ -75,7 +71,9 @@ jobs:
           path: jianjing-screenshot.png
           if-no-files-found: ignore
       - name: Upload debug APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: SplashGuard-API102-debug
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: ignore
