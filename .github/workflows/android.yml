@@ -41,6 +41,39 @@ jobs:
               assert adaptive, "Missing adaptive launcher icon XML"
               print("Launcher resources:", icon, adaptive)
           PY
+      - name: Enable emulator acceleration
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+      - name: Android 15 emulator launch smoke test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb logcat -c
+            adb shell am start -W -n com.hexplorers.splashguard/.MainActivity
+            sleep 8
+            adb logcat -d -v time > /tmp/jianjing-smoketest-logcat.txt
+            if grep -A 50 "FATAL EXCEPTION" /tmp/jianjing-smoketest-logcat.txt | grep -q "com.hexplorers.splashguard"; then
+              echo "Fatal crash detected after launching JianJing"
+              grep -A 50 "FATAL EXCEPTION" /tmp/jianjing-smoketest-logcat.txt | tail -n 90
+              exit 1
+            fi
+            adb shell pidof com.hexplorers.splashguard
+            adb shell screencap -p /sdcard/jianjing-screenshot.png
+            adb pull /sdcard/jianjing-screenshot.png jianjing-screenshot.png
+      - name: Upload emulator screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: JianJing-Emulator-Screenshot
+          path: jianjing-screenshot.png
+          if-no-files-found: ignore
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
