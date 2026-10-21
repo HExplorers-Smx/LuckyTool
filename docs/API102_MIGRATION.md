@@ -7,3 +7,5 @@
 - Prevents Gradle configuration from changing version.properties automatically.
 - CI triggers on the migration branch and checks the built APK for generated API 102 module metadata.
 - This PR is a test migration. Compile result and runtime compatibility with Android / ColorOS still require actual CI and device verification. Do not merge as a proven stable release before testing.
+
+- CI now compiles against Android SDK **37.2** (all three modules), required by YukiHook 1.5.0 and latest AndroidX AAR metadata. This does **not** raise targetSdk (28) or minSdk (30). Use `platforms;android-37.2` rather than the nonexistent `platforms;android-37` SDK-manager package.

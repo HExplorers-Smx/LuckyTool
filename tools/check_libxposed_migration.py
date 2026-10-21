@@ -8,6 +8,9 @@ import xml.etree.ElementTree as ET
 root = Path(__file__).resolve().parents[1]
 versions = tomllib.loads((root / 'gradle/libs.versions.toml').read_text())
 assert versions['versions']['yukihook'] == '1.5.0'
+assert 'extra["compileSdkVersion"] = 37' in (root / 'build.gradle.kts').read_text()
+for gradle in ('app/build.gradle.kts', 'colorpicker/build.gradle.kts', 'hidden-api-stub/build.gradle.kts'):
+    assert 'minorApiLevel = 2' in (root / gradle).read_text(), gradle
 assert versions['libraries']['libxposed-api']['version'] == '102.0.0'
 for name in ('yukihook-bom', 'yukihook-core', 'yukihook-compiler', 'yukihook-runtime-libxposed'):
     assert name in versions['libraries'], name

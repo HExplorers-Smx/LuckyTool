@@ -18,7 +18,7 @@ android {
     namespace = "com.luckyzyx.luckytool"
     compileSdk {
         version = release(rootProject.extra.get("compileSdkVersion") as Int) {
-//            minorApiLevel = 1
+minorApiLevel = 2
         }
     }
     defaultConfig {
