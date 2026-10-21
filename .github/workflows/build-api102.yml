@@ -17,13 +17,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Use hosted runner Android SDK
+      - name: Install Android SDK 37 using hosted cmdline-tools
         run: |
-          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          test -x "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" || command -v sdkmanager
-          yes | sdkmanager --licenses > /dev/null || true
-      - name: Install Android SDK 37
-        run: sdkmanager --install 'platforms;android-37' 'build-tools;37.0.0'
+          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          SDK_MANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDK_MANAGER"
+          yes | "$SDK_MANAGER" --licenses > /dev/null || true
+          "$SDK_MANAGER" --install 'platforms;android-37' 'build-tools;37.0.0'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Check migration configuration
