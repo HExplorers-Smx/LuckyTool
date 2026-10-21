@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.hexplorers.splashguard.SkipSettings
+import com.hexplorers.splashguard.SkipRule
+import com.hexplorers.splashguard.RuleCatalog
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -19,7 +21,8 @@ import java.util.WeakHashMap
  * seconds after a foreground launch only, not arbitrary background screens.
  */
 internal class SplashLifecycle private constructor(
-    private val config: SkipSettings
+    private val config: SkipSettings,
+    private val customRules: List<SkipRule>
 ) : Application.ActivityLifecycleCallbacks {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -86,7 +89,10 @@ internal class SplashLifecycle private constructor(
             val text = (view as? TextView)?.text?.toString().orEmpty()
             val label = view.contentDescription?.toString().orEmpty()
             val matchText = listOf(text, label).firstOrNull(SkipMatcher::isPotentialAdSkip)
-            if (matchText != null && view.isEnabled) {
+            val customText = listOf(text, label).firstOrNull {
+                RuleCatalog.matches(customRules, activity.packageName, it)
+            }
+            if ((matchText != null || customText != null) && view.isEnabled) {
                 val bounds = Rect()
                 if (view.getGlobalVisibleRect(bounds) && bounds.width() > 0 && bounds.height() > 0) {
                     val rightHalf = bounds.centerX() >= (decorWidth * 0.55f)
@@ -95,8 +101,9 @@ internal class SplashLifecycle private constructor(
                         val idName = if (view.id != View.NO_ID) {
                             runCatching { view.resources.getResourceEntryName(view.id) }.getOrNull().orEmpty()
                         } else ""
-                        val hint = activityHint || AdSdkProfiles.matches(idName, label) ||
-                            SkipMatcher.isAdCountDown(matchText)
+                        val hint = customText != null || activityHint ||
+                            AdSdkProfiles.matches(idName, label) ||
+                            SkipMatcher.isAdCountDown(matchText.orEmpty())
                         if (!config.strict || hint) return view
                     }
                 }
@@ -122,11 +129,11 @@ internal class SplashLifecycle private constructor(
 
     companion object {
         private val registered = Collections.newSetFromMap(WeakHashMap<Application, Boolean>())
-        fun attach(app: Application, settings: SkipSettings) {
+        fun attach(app: Application, settings: SkipSettings, rules: List<SkipRule>) {
             synchronized(registered) {
                 if (!registered.add(app)) return
             }
-            app.registerActivityLifecycleCallbacks(SplashLifecycle(settings))
+            app.registerActivityLifecycleCallbacks(SplashLifecycle(settings, rules))
         }
     }
 }

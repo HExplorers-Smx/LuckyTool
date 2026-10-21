@@ -1,6 +1,7 @@
 package com.hexplorers.splashguard.hook
 
 import com.hexplorers.splashguard.SkipSettings
+import com.hexplorers.splashguard.RuleCatalog
 import com.hexplorers.splashguard.BuildConfig
 import com.highcapable.yukihookapi.annotation.xposed.YukiHookLibXposedEntry
 import com.highcapable.yukihookapi.hook.factory.encase
@@ -41,7 +42,10 @@ object HookEntry : YukiHookXposedModule {
             if (rules.blockShakeAds) loadHooker(ShakeSensorHook(rules))
             if (rules.enabled) {
                 withApplicationReady { app ->
-                    SplashLifecycle.attach(app, rules)
+                    val custom = runCatching {
+                        RuleCatalog.parse(preferences("splashguard").getString(RuleCatalog.KEY, ""))
+                    }.getOrDefault(emptyList())
+                    SplashLifecycle.attach(app, rules, custom)
                 }
             }
         }
