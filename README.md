@@ -1,60 +1,20 @@
-<div align="center">
-<h1>LuckyTool</h1>
-<img src="./assets/ic_launcher.png" alt="">
-<p></p>
-<p>
-   <b><a href="https://github.com/Xposed-Modules-Repo/com.luckyzyx.luckytool/blob/main/README_EN.md">English</a>  丨 简体中文</b>
-</p>
-<a href="https://github.com/Xposed-Modules-Repo/com.luckyzyx.luckytool/releases"><img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.luckyzyx.luckytool/total?label=Downloads"></a>
-<a href="https://github.com/Xposed-Modules-Repo/com.luckyzyx.luckytool/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Xposed-Modules-Repo/com.luckyzyx.luckytool"></a>
-<a href="https://github.com/Xposed-Modules-Repo/com.luckyzyx.luckytool/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Xposed-Modules-Repo/com.luckyzyx.luckytool"></a>
-<a href="https://t.me/LuckyTool"><img alt="Telegram Channel" src="https://img.shields.io/badge/Telegram-频道-blue.svg?logo=telegram"></a>   
-<a href="https://crowdin.com/project/luckytool"><img alt="Crowdin" src="https://badges.crowdin.net/luckytool/localized.svg"></a>
-<p>对ColorOS系统进行的扩展优化的Xposed模块</p>
-<p>永久免费模块，请勿上当受骗</p>
-<p>禁止引流、搬运、转载、售卖、分享、分流</p>
-<p>提倡授之以渔，切莫授之以鱼</p>
-</div>
+# 开屏净 SplashGuard 1.0
 
----
+**独立 APK**，不是 LuckyTool 的模块补丁。
 
-## 功能请求与 BUG 反馈
+技术栈：YukiHook 1.5.0 正式版、libxposed API 102、Android SDK 37.2、JDK 21。
 
-请前往 TG 群组进行反馈交流
+- **开屏广告跳过**：限定在前台启动最初几秒扫描 View 树，只点击可见的“跳过 / Skip”等按钮。对敏感页面的活动名做排除；支持可选严格模式、右上角限制、4–12 秒扫描时间。
+- **摇一摇广告拦截**：只阻止已识别广告 SDK 使用 SensorManager 注册加速度传感器监听，默认启用；增强陀螺仪拦截默认关闭；允许开关诊断日志。未识别 SDK 和正常应用的动作传感器监听原样放行。
+- 识别已知 SDK 命名空间：优量汇、穿山甲、快手、百度、Sigmob、华为、小米、Mintegral、TopOn 等。混淆/重打包后可能失效，**不承诺全部摇一摇广告有效**。
+- 使用 LSPosed 等 API 102 兼容框架，手动选择要启用的应用作用域。不要勾选系统框架或敏感银行支付应用。
+- 不拦截广告网络、不修改登录、支付和权限请求，也不会全局禁用传感器。
+- 默认启用开屏跳过和摇一摇拦截；修改设置后需强行停止目标应用重新启动。功能效果需真机验证。
 
-<div align="left">
-<p>
-   <b><a href="https://luckyzyx.gitlab.io/LuckyTool_Doc/changelog">更新日志</a> | <a href="https://crwd.in/luckytool">参与翻译</a></b>
-</p>
-</div>
+本独立工程暂存于 LuckyTool Fork 的 `standalone/splashguard-api102` 分支，Git 代码与 LuckyTool 原有工程分开。可自行新建仓库。
 
-## 作用域优化
+```bash
+./gradlew :app:assembleDebug
+```
 
-升级系统后如果有遇到无报错但是不生效的情况，可尝试使用模块重启菜单里的优化 Dex 功能或者在 LSPosed 里长按对应的作用域 App 点击重新优化
-
-例如：开发者选项通知无法移除，则重新优化系统界面（
-
-
-## Xposed API
-
-[YukiHookAPI](https://github.com/HighCapable/YukiHookAPI)
-
-## Lsposed Repo
-
-[LuckyTool](https://github.com/Xposed-Modules-Repo/com.luckyzyx.luckytool)
-
-## 题外话
-
-仓库目前拥有完整的commit记录，任何他人歪曲捏造事实的行为都将受到谴责，包括但不限于 [Evil-LuckyTool](https://github.com/Chen-qing31/Evil-LuckyTool) [LuckyTool-Foss](https://github.com/Qing0721/LuckyTool-Foss)
-
-之前确实有黑名单机制，我并没有否认，但是早已删除，其次作者有繁忙的工作并不靠模块赚钱，现在AI兴起，其他比LT更好的模块很多，特此开源提供模块开发入门支持
-
-## Star History
-
-<a href="https://www.star-history.com/#luckyzyx/LuckyTool&Timeline">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=luckyzyx/LuckyTool&type=Timeline&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=luckyzyx/LuckyTool&type=Timeline" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=luckyzyx/LuckyTool&type=Timeline" />
- </picture>
-</a>
+源码打包交付时包含独立工程与 Gradle Wrapper。CI 验证包含 libxposed API 102 元数据校验；真实广告拦截效果不能通过 CI 保证。
