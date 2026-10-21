@@ -65,6 +65,7 @@ import com.luckyzyx.luckytool.hook.scopes.otherapp.HookADM
 import com.luckyzyx.luckytool.hook.scopes.otherapp.HookAlphaBackupPro
 import com.luckyzyx.luckytool.hook.scopes.otherapp.HookFakeGpsJoyStick
 import com.luckyzyx.luckytool.hook.scopes.otherapp.HookKsWeb
+import com.luckyzyx.luckytool.hook.scopes.otherapp.HookWalletAds
 import io.github.lsposed.disableflagsecure.DisableFlagSecure
 import org.lsposed.corepatch.XposedMain
 import org.lsposed.lsparanoid.Obfuscate
@@ -143,6 +144,7 @@ import java.io.File
         "com.oplus.claw",
         "ru.kslabs.ksweb",
         "com.dv.adm",
+        "com.finshell.wallet",
         "com.ruet_cse_1503050.ragib.appbackup.pro",
         "com.theappninjas.fakegpsjoystick",
     ],
@@ -365,6 +367,9 @@ class MainHook : YukiHookXposedModule {
         loadApp("com.ruet_cse_1503050.ragib.appbackup.pro", HookAlphaBackupPro)
         loadApp("ru.kslabs.ksweb", HookKsWeb)
         loadApp("com.dv.adm", HookADM)
+
+        // OPPO Wallet 5.51.5: ad presentation only
+        loadApp("com.finshell.wallet", HookWalletAds)
     }
 
 }
