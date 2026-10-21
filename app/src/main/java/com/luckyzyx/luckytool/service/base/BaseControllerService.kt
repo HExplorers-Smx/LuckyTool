@@ -5,8 +5,6 @@ import android.content.Context
 import android.os.Binder
 import android.os.IBinder
 import android.os.IInterface
-import android.os.UserHandle
-import com.highcapable.kavaref.KavaRef.Companion.asResolver
 import com.luckyzyx.luckytool.utils.LogUtils
 import com.luckyzyx.luckytool.utils.bindRootService
 import org.lsposed.lsparanoid.Obfuscate
@@ -30,12 +28,9 @@ abstract class BaseControllerService<T : IInterface> {
             controller = getController(iBinder)
 
             val uid = Binder.getCallingUid()
-            val userid = UserHandle::class.asResolver().firstMethod {
-                name = "getUserId"
-                parameters(Int::class)
-            }.invoke(Binder.getCallingUid())
+
             LogUtils.d(
-                TAG, "get ($uid : $userid)", "${controller != null}", true
+                TAG, "get ($uid)", "${controller != null}", true
             )
             result(controller)
         })
