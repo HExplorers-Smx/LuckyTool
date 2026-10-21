@@ -6,7 +6,7 @@ android {
     namespace = "com.luckyzyx.internal"
     compileSdk {
         version = release(rootProject.extra.get("compileSdkVersion") as Int) {
-//            minorApiLevel = 1
+minorApiLevel = 2
         }
     }
     compileOptions {

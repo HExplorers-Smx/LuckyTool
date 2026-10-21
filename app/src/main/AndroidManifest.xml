@@ -82,12 +82,7 @@
                 android:name=".ui.activity.CropImageActivity"
                 android:theme="@style/Theme.Luckyzyx.NoActionBar.DynamicColors" />
         
-        <meta-data
-                android:name="xposedmodule"
-                android:value="true" />
-        <meta-data
-                android:name="xposeddescription"
-                android:value="@string/xposeddescription" />
+        <!-- libxposed metadata is generated in META-INF/xposed by YukiHook Compiler. -->
         <service
                 android:name=".service.tiles.ChargingTestTile"
                 android:exported="true"

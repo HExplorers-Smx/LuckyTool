@@ -1,0 +1,54 @@
+name: Build LuckyTool API 102
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'migration/**']
+  pull_request:
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Android SDK 37.2 using hosted cmdline-tools
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          SDK_MANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDK_MANAGER"
+          yes | "$SDK_MANAGER" --licenses > /dev/null || true
+          "$SDK_MANAGER" --install 'platforms;android-37.2' 'build-tools;37.0.0'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Check migration configuration
+        run: python3 tools/check_libxposed_migration.py
+      - name: Migrate KavaRef extension imports
+        run: python3 tools/migrate_yukihook_kavaref_imports.py
+      - name: Assemble debug APK
+        run: bash ./gradlew --no-daemon --stacktrace :app:assembleDebug
+      - name: Verify API 102 metadata in APK
+        run: |
+          python3 - <<'PY'
+          import glob
+          import zipfile
+          apks = glob.glob("app/build/outputs/apk/debug/*.apk")
+          assert len(apks) == 1, f"Expected 1 APK: {apks}"
+          with zipfile.ZipFile(apks[0]) as z:
+              required = {'META-INF/xposed/java_init.list', 'META-INF/xposed/module.prop', 'META-INF/xposed/scope.list'}
+              missing = required - set(z.namelist())
+              assert not missing, f"Missing metadata: {sorted(missing)}"
+              entry = z.read("META-INF/xposed/java_init.list").decode().strip()
+              assert entry, "Empty module entry"
+              print("API 102 entry:", entry)
+          PY
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LuckyTool-API102-debug
+          path: app/build/outputs/apk/debug/*.apk

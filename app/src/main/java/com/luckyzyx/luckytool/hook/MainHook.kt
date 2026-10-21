@@ -94,6 +94,7 @@ import java.io.File
         "com.oplus.aod",
         "com.oplus.uiengine",
         "com.heytap.themestore",
+        "com.oplus.themestore",
         "com.oplus.games",
         "com.oplus.cosa",
         "com.heytap.cloud",

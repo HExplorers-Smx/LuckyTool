@@ -1,4 +1,3 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -19,7 +18,7 @@ android {
     namespace = "com.luckyzyx.luckytool"
     compileSdk {
         version = release(rootProject.extra.get("compileSdkVersion") as Int) {
-//            minorApiLevel = 1
+minorApiLevel = 2
         }
     }
     defaultConfig {
@@ -29,20 +28,25 @@ android {
         targetSdk = rootProject.extra.get("targetSdkVersion") as Int
 
         versionCode = getVersionCode()
-        versionName = "1.3.5_beta"
+        versionName = "1.3.5-api102-yuki1.5.0"
         ndk.abiFilters.addAll(arrayOf("arm64-v8a"/*, "armeabi-v7a", "x86", "x86_64"*/))
     }
     signingConfigs {
-        all {
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = null
-
-            storeFile = file(rootProject.extra.get("storeFile") as String)
-            storePassword = rootProject.extra.get("storePassword") as String
-            keyAlias = rootProject.extra.get("keyAlias") as String
-            keyPassword = rootProject.extra.get("keyPassword") as String
+        // The upstream's private release keystore is not distributed with the source.
+        val keystorePath = rootProject.extra.get("storeFile") as String
+        val keystorePass = rootProject.extra.get("storePassword") as String
+        val alias = rootProject.extra.get("keyAlias") as String
+        val aliasPass = rootProject.extra.get("keyPassword") as String
+        if (listOf(keystorePath, keystorePass, alias, aliasPass).all { it.isNotBlank() }) {
+            create("luckytoolRelease") {
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                storeFile = file(keystorePath)
+                storePassword = keystorePass
+                keyAlias = alias
+                keyPassword = aliasPass
+            }
         }
     }
     buildTypes {
@@ -53,7 +57,7 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("luckytoolRelease")
         }
         debug {
             isDebuggable = false
@@ -114,6 +118,7 @@ dependencies {
     implementation(libs.yukihook.core)
     ksp(libs.yukihook.compiler)
     implementation(libs.yukihook.runtime.libxposed)
+    implementation(libs.yukihook.extension.kavaref)
 
     compileOnly(libs.libxposed.api)
     implementation(libs.libxposed.service)
@@ -177,14 +182,10 @@ dependencies {
 }
 
 fun getVersionCode(): Int {
+    // Reading the version must not mutate a tracked file during CI or IDE sync.
     val propsFile = file("version.properties")
-    if (propsFile.canRead()) {
-        val properties = Properties()
-        properties.load(FileInputStream(propsFile))
-        var vCode = properties["versionCode"].toString().toInt()
-        properties["versionCode"] = (++vCode).toString()
-        properties.store(propsFile.writer(), null)
-        println("versionCode -> $vCode")
-        return vCode
-    } else throw GradleException("Can't read version.properties!")
+    if (!propsFile.isFile) throw GradleException("Can't read version.properties!")
+    val properties = Properties()
+    propsFile.inputStream().use { properties.load(it) }
+    return properties.getProperty("versionCode").toInt()
 }
