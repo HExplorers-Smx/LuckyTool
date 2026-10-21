@@ -1374,4 +1374,8 @@
     <string name="apk_details_unknown">Unavailable</string>
 
 
+    <!-- Wallet (com.finshell.wallet) -->
+    <string name="wallet_skip_splash_ads">Skip wallet splash ads</string>
+    <string name="wallet_hide_ad_cards">Hide wallet promotional and recommended app cards</string>
+    <string name="wallet_ads_scope_notice">Only ad views are filtered. Payment, NFC and account services are untouched.</string>
 </resources>

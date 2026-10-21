@@ -79,6 +79,7 @@ import com.luckyzyx.luckytool.ui.fragment.scopes.others.AlphaBackupPro
 import com.luckyzyx.luckytool.ui.fragment.scopes.others.Claw
 import com.luckyzyx.luckytool.ui.fragment.scopes.others.GpsJoyStick
 import com.luckyzyx.luckytool.ui.fragment.scopes.others.KsWeb
+import com.luckyzyx.luckytool.ui.fragment.scopes.others.Wallet
 import com.luckyzyx.luckytool.ui.fragment.scopes.related.AndroidRelated
 import com.luckyzyx.luckytool.ui.fragment.scopes.related.AodRelated
 import com.luckyzyx.luckytool.ui.fragment.scopes.related.ApplicationRelated
@@ -236,6 +237,7 @@ class XposedFragment : BaseScopePreferenceFeagment(), MenuProvider {
         addFragmentPreference(this, allPrefs, KsWeb())
         addFragmentPreference(this, allPrefs, ADM())
         addFragmentPreference(this, allPrefs, GpsJoyStick())
+        addFragmentPreference(this, allPrefs, Wallet())
 
         return allPrefs
     }
@@ -327,6 +329,7 @@ class XposedFragment : BaseScopePreferenceFeagment(), MenuProvider {
         addFragmentItem(context, allFragmentItem, AlphaBackupPro())
         addFragmentItem(context, allFragmentItem, KsWeb())
         addFragmentItem(context, allFragmentItem, GpsJoyStick())
+        addFragmentItem(context, allFragmentItem, Wallet())
     }
 
     private fun addFragmentPreference(
