@@ -32,7 +32,7 @@ for path in source.rglob("*.kt"):
             imports.append(desired)
     if not imports:
         continue
-    m = re.match(r"^(package [^\n]+\n)", content)
+    m = re.search(r"^package[ \t]+[^\r\n]+\r?\n", content, re.MULTILINE)
     if not m:
         raise RuntimeError(f"Missing package statement: {path}")
     content = content[:m.end()] + "\n".join(sorted(imports)) + "\n" + content[m.end():]
