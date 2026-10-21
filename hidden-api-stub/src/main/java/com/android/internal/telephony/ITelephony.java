@@ -20,10 +20,12 @@ public interface ITelephony {
     
     long getAllowedNetworkTypesForReason(int i, int i2) throws RemoteException;
     
-    @DeprecatedSinceApi(api = Build.VERSION_CODES.CINNAMON_BUN)
+    // Android API 37 constant is not present when compiling with SDK 36.
+    // Keep the original API-level behavior without requiring preview SDK 37.
+    @DeprecatedSinceApi(api = 37)
     boolean setAllowedNetworkTypesForReason(int i, int i2, long j) throws RemoteException;
     
-    @RequiresApi(api = Build.VERSION_CODES.CINNAMON_BUN)
+    @RequiresApi(api = 37)
     boolean setAllowedNetworkTypesForReason(int i, int i2, long j, String str) throws RemoteException;
     
     @DeprecatedSinceApi(api = Build.VERSION_CODES.S, message = "该方法仅在Android12之前存在!")
