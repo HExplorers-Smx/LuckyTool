@@ -16,7 +16,7 @@ plugins {
     alias(libs.plugins.lsplugin.lsparanoid) apply false
 }
 
-extra["compileSdkVersion"] = 37
+extra["compileSdkVersion"] = 36
 extra["targetSdkVersion"] = 28
 extra["minSdkVersion"] = 30
 
