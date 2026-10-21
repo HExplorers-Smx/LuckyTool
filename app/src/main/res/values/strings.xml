@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">简净</string>
-    <string name="module_description">简净 — 开屏广告跳过、摇一摇拦截与安全规则</string>
+    <string name="app_name">开屏净</string>
+    <string name="module_description">独立的开屏广告跳过与摇一摇广告拦截模块（API 102）</string>
 </resources>

@@ -41,6 +41,11 @@ import top.yukonga.miuix.kmp.blur.textureBlur
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (CrashRecovery.isSafe(this)) {
+            showRecoveryScreen()
+            return
+        }
+        try {
         val prefs = preferences("splashguard")
         setContent {
             MiuixTheme(controller = remember { ThemeController(ColorSchemeMode.MonetSystem) }) {
@@ -54,7 +59,7 @@ class MainActivity : ComponentActivity() {
                         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                             .padding(horizontal = 18.dp).padding(top = 34.dp, bottom = 116.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Image(painterResource(R.drawable.app_icon), "简净图标",
+                                Image(painterResource(R.drawable.app_icon_v2), "简净图标",
                                     Modifier.size(70.dp).clip(RoundedCornerShape(21.dp)))
                                 Spacer(Modifier.width(15.dp))
                                 Column {
@@ -113,6 +118,50 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        } catch (error: Throwable) {
+            CrashRecovery.record(this, error)
+            showRecoveryScreen()
+        }
+    }
+
+    private fun showRecoveryScreen() {
+        // Deliberately native Views: this page must not depend on Compose,
+        // Miuix or the wallpaper color engine that may be crashing.
+        val root = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            val spacing = (20 * resources.displayMetrics.density).toInt()
+            setPadding(spacing, spacing * 2, spacing, spacing)
+            setBackgroundColor(android.graphics.Color.rgb(242, 247, 252))
+        }
+        fun line(value: String, large: Boolean = false): android.widget.TextView =
+            android.widget.TextView(this).apply {
+                text = value
+                textSize = if (large) 24f else 14f
+                setTextColor(android.graphics.Color.rgb(28, 44, 75))
+                setPadding(0, 12, 0, 12)
+            }
+        root.addView(line("简净 · 安全模式", true))
+        root.addView(line("检测到上次启动时界面异常。设置和规则没有被清除。"))
+        root.addView(line("你可以复制崩溃日志，然后重新尝试打开现代化界面。"))
+        val message = CrashRecovery.trace(this).ifBlank { "无已记录的崩溃堆栈" }
+        root.addView(android.widget.Button(this).apply {
+            text = "复制崩溃日志"
+            setOnClickListener {
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                    as android.content.ClipboardManager
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText("简净崩溃日志", message))
+                android.widget.Toast.makeText(this@MainActivity, "日志已复制", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        })
+        root.addView(android.widget.Button(this).apply {
+            text = "重新尝试打开简净"
+            setOnClickListener {
+                CrashRecovery.retry(this@MainActivity)
+                recreate()
+            }
+        })
+        val scroll = android.widget.ScrollView(this).apply { addView(root) }
+        setContentView(scroll)
     }
 }
 

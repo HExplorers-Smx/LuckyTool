@@ -17,3 +17,5 @@ with zipfile.ZipFile(apks[0]) as z:
     assert required.issubset(z.namelist()),required-set(z.namelist())
     assert z.read('META-INF/xposed/java_init.list').strip()
 print('PASS: YukiHook 1.5.0 / libxposed API 102 metadata,',apks[0])
+assert (root/'app/src/main/java/com/hexplorers/splashguard/CrashRecovery.kt').is_file()
+assert (root/'app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml').is_file()

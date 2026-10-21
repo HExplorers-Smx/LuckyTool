@@ -27,6 +27,20 @@ jobs:
         run: bash ./gradlew --no-daemon --stacktrace :app:assembleDebug
       - name: Verify Xposed API102 module metadata
         run: python3 tools/check_metadata.py
+
+      - name: Verify actual launcher icon resources
+        run: |
+          python3 - <<'PY'
+          import glob, zipfile
+          apk = glob.glob("app/build/outputs/apk/debug/*.apk")[0]
+          with zipfile.ZipFile(apk) as z:
+              members=set(z.namelist())
+              icon=[x for x in members if x.endswith("app_icon_v2.webp")]
+              adaptive=[x for x in members if x.endswith("ic_launcher.xml")]
+              assert icon, "Missing packaged illustrated launcher bitmap"
+              assert adaptive, "Missing adaptive launcher icon XML"
+              print("Launcher resources:", icon, adaptive)
+          PY
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
