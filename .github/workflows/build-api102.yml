@@ -17,8 +17,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Use hosted runner Android SDK
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          test -x "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" || command -v sdkmanager
+          yes | sdkmanager --licenses > /dev/null || true
       - name: Install Android SDK 37
         run: sdkmanager --install 'platforms;android-37' 'build-tools;37.0.0'
       - name: Set up Gradle
