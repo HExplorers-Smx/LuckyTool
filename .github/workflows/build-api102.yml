@@ -2,7 +2,7 @@ name: Build LuckyTool API 102
 on:
   workflow_dispatch:
   push:
-    branches: [main, 'migration/**']
+    branches: [main, 'migration/**', 'fix/**']
   pull_request:
 
 jobs:
