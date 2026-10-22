@@ -36,22 +36,22 @@ public class DisableFlagSecure {
     private final Set<String> hookedIds = new HashSet<>();
     
     /**
-     * LuckyTool 开关：ModulePrefs.disable_flag_secure（保留旧版开关语义）
+     * LuckyTool 开关：true=启用截图限制解除，false=禁用（默认）
      */
     private boolean isEnabled(XposedInterface base) {
         try {
-            return !base.getRemotePreferences("ModulePrefs").getBoolean("disable_flag_secure", false);
+            return base.getRemotePreferences("ModulePrefs").getBoolean("disable_flag_secure", false);
         } catch (Throwable t) {
-            return true;
+            return false; // fail closed on inaccessible preferences
         }
     }
-    
+
     public void onModuleLoaded(XposedInterface base) {
         module = base;
     }
     
     public void onSystemServerStarting(@NonNull XposedModuleInterface.SystemServerStartingParam param) {
-        if (isEnabled(module)) return;
+        if (!isEnabled(module)) return;
         var classLoader = param.getClassLoader();
         this.param = Pair.create("system", classLoader);
         try {
@@ -158,7 +158,7 @@ public class DisableFlagSecure {
     
     @SuppressLint("PrivateApi")
     public void onPackageReady(@NonNull XposedModuleInterface.PackageReadyParam param) {
-        if (isEnabled(module)) return;
+        if (!isEnabled(module)) return;
         if (!param.isFirstPackage()) return;
         
         var classLoader = param.getClassLoader();
@@ -221,6 +221,9 @@ public class DisableFlagSecure {
     }
     
     public void onHotReloaded(@NonNull XposedModuleInterface.HotReloadedParam param, Object savedState) {
+        // Respect the switch during hot reload; a full reboot is required
+        // to remove previously installed system_server hooks safely.
+        if (!isEnabled(module)) return;
         var isSystemServer = param.isSystemServer();
         if (savedState instanceof Pair<?, ?> pair
                 && pair.first instanceof String packageName

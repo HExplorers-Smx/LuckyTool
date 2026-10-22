@@ -168,13 +168,13 @@ class MainHook : YukiHookXposedModule {
             onPackageLoaded { }
             onPackageReady {
                 val prefs = getRemotePreferences("ModulePrefs")
-                val disableFlagEnable = !prefs.getBoolean("disable_flag_secure", false)
+                val disableFlagEnable = prefs.getBoolean("disable_flag_secure", false)
                 if (disableFlagEnable) disableFlagSecure.onPackageReady(it)
             }
             onSystemServerStarting {
                 val prefs = getRemotePreferences("ModulePrefs")
                 corePatch.onSystemServerStarting(it)
-                val disableFlagEnable = !prefs.getBoolean("disable_flag_secure", false)
+                val disableFlagEnable = prefs.getBoolean("disable_flag_secure", false)
                 if (disableFlagEnable) disableFlagSecure.onSystemServerStarting(it)
             }
             // libxposed 的 saved 槽位唯一，两个组件的状态必须合并写入，否则后写覆盖先写
